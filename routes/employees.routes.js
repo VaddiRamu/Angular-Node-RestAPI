@@ -4,7 +4,7 @@ const app = express();
 const employeesExpressRoute = express.Router();
 const addEmployeeSchema = require('../model/addEmployee.model');
 //const EmployeesSchema = require('../model/employees.model');
-const RegisterEmpSchema = require('../model/employees.model');
+const RegisterEmpSchema = require('../model/registerEmployee');
 const UserDetailsSchema = require('../model/employees.model');
 const validate = require('../model/employees.model');
 //const { EmployeesSchema, RegisterEmpSchema, UserDetailsSchema, User, validate } = require('../model/employees.model');
@@ -125,7 +125,7 @@ employeesExpressRoute.route('/registerUser').post((req, res, next) => {
       return res.status(400).send('That user already exisits!');
   } else {
       // Insert the new user if they do not exist yet
-      RegisterEmpSchema.create(req.body, (error, data) => {
+      UserDetailsSchema.create(req.body, (error, data) => {
                 if (error) {
                     return next(error)
                 } else {

@@ -21,28 +21,28 @@ const Schema = mongoose.Schema;
 //   return object;
 // });
 
-const registerEmpSchema = new Schema({
-  firstCtrl : {
-    type:String
-  },
-  secondCtrl : {
-    type:String
-  },
-  phone : {
-    type:Number
-  },
-  email : {
-    type:String,
-    require : true,
-    unique : true
-  },
-  date:{
-    type: Date,
-    default : Date.now,
-  }
-},
-{collection: 'registration'}
-);
+// const registerEmpSchema = new Schema({
+//   firstName : {
+//     type:String
+//   },
+//   location : {
+//     type:String
+//   },
+//   phone : {
+//     type:Number
+//   },
+//   email : {
+//     type:String,
+//     require : true,
+//     unique : true
+//   },
+//   date:{
+//     type: Date,
+//     default : Date.now,
+//   }
+// },
+// {collection: 'registration'}
+// );
 
 // register details Add ////
 // const AddressSchema = mongoose.Schema({
@@ -137,7 +137,7 @@ function validateUser(user) {
 exports.validate = validateUser;
 
 //module.exports = mongoose.model("EmployeesSchema", employeesSchema);
-module.exports = mongoose.model("RegisterEmpSchema", registerEmpSchema);
+//module.exports = mongoose.model("RegisterEmpSchema", registerEmpSchema);
 //module.exports = mongoose.model("RegisterEmpSchema", registerEmpSchema, ContactInfoSchema, AddressSchema);
 module.exports = mongoose.model("UserDetailsSchema", userDetailsSchema);
 
