@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 
 const employeesExpressRoute = express.Router();
-const EmployeesSchema = require('../model/employees.model');
+const addEmployeeSchema = require('../model/addEmployee.model');
+//const EmployeesSchema = require('../model/employees.model');
 const RegisterEmpSchema = require('../model/employees.model');
 const UserDetailsSchema = require('../model/employees.model');
 const validate = require('../model/employees.model');
@@ -12,7 +13,7 @@ employeesExpressRoute.route('/employees').get((req,res, next) =>{
     //res.json({ message: "Welcome to Rest API with MongoDB." });
     // console.log(res); 
     app.use(express.json());
-    EmployeesSchema.find((error,data)=>{      
+    addEmployeeSchema.find((error,data)=>{      
         console.log(res);  
         if(data){
             res.json(data) ;  
@@ -26,7 +27,7 @@ employeesExpressRoute.route('/employees').get((req,res, next) =>{
 /// OR ///
 // employeesExpressRoute.get('/employees', function (req, res, next) {
 //     app.use(express.json());
-//     EmployeesSchema.find((error,data)=>{      
+//     addEmployeeSchema.find((error,data)=>{      
 //         console.log(res);  
 //         if(data){
 //             res.json(data) ;  
@@ -41,7 +42,7 @@ employeesExpressRoute.route('/employees').get((req,res, next) =>{
 // Create employee
 employeesExpressRoute.route('/add-employee').post((req, res, next) => {
     //res.send('Post employees API');
-    EmployeesSchema.create(req.body, (error, data) => {
+    addEmployeeSchema.create(req.body, (error, data) => {
         if (error) {
             return next(error)
         } else {
@@ -52,7 +53,7 @@ employeesExpressRoute.route('/add-employee').post((req, res, next) => {
 
 // Get single employee
 employeesExpressRoute.route('/employees/:id').get((req,res) =>{
-    EmployeesSchema.findById(req.params.id,(error,data)=>{       
+    addEmployeeSchema.findById(req.params.id,(error,data)=>{       
         if(error){
             return next(error)            
         } else {           
@@ -64,7 +65,7 @@ employeesExpressRoute.route('/employees/:id').get((req,res) =>{
 
 // Update employee
 employeesExpressRoute.route('/update-employee/:id').put((req, res, next) => {
-    EmployeesSchema.findByIdAndUpdate(req.params.id, {
+    addEmployeeSchema.findByIdAndUpdate(req.params.id, {
         $set: req.body
     }, (error, data) => {
         if (error) {
@@ -77,7 +78,7 @@ employeesExpressRoute.route('/update-employee/:id').put((req, res, next) => {
 })
 // Delete employee
 employeesExpressRoute.route('/delete-employee/:id').delete((req, res, next) => {
-    EmployeesSchema.findByIdAndRemove(req.params.id, (error, data) => {
+    addEmployeeSchema.findByIdAndRemove(req.params.id, (error, data) => {
         if (error) {
             return next(error);
         } else {
@@ -101,6 +102,16 @@ employeesExpressRoute.route('/registerUser').post((req, res, next) => {
     })
 })
 
+ // users details form without validations///
+//   employeesExpressRoute.route('/userDetails').post( async(req, res, next) => { 
+//     RegisterEmpSchema.create(req.body, (error, data) => {
+//                         if (error) {
+//                             return next(error)
+//                         } else {
+//                             res.json(data)
+//                         }
+//                     })
+//   })
 
  // users details form with validations///
   employeesExpressRoute.route('/userDetails').post( async(req, res, next) => {   

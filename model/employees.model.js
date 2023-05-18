@@ -2,26 +2,26 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-let employeesSchema = new Schema({
-  name : {
-    type:String
-  },
-  description : {
-    type:String
-  },
-  designation : {
-    type:String
-  }
-},
-{collection: 'employees'}
-);
-employeesSchema.method("toJSON", function() {
-  const { __v, _id, ...object } = this.toObject();
-  object.id = _id;
-  return object;
-});
+// const employeesSchema = new Schema({
+//   name : {
+//     type:String
+//   },
+//   description : {
+//     type:String
+//   },
+//   designation : {
+//     type:String
+//   }
+// },
+// {collection: 'employees'}
+// );
+// employeesSchema.method("toJSON", function() {
+//   const { __v, _id, ...object } = this.toObject();
+//   object.id = _id;
+//   return object;
+// });
 
-let registerEmpSchema = new Schema({
+const registerEmpSchema = new Schema({
   firstCtrl : {
     type:String
   },
@@ -86,7 +86,7 @@ let registerEmpSchema = new Schema({
 
 
 /// userDetails Add ///
-let userDetailsSchema = new Schema({
+const userDetailsSchema = new Schema({
   firstname : {
     type:String
   },
@@ -143,7 +143,7 @@ function validateUser(user) {
 
 exports.validate = validateUser;
 
-module.exports = mongoose.model("EmployeesSchema", employeesSchema);
+//module.exports = mongoose.model("EmployeesSchema", employeesSchema);
 module.exports = mongoose.model("RegisterEmpSchema", registerEmpSchema);
 //module.exports = mongoose.model("RegisterEmpSchema", registerEmpSchema, ContactInfoSchema, AddressSchema);
 module.exports = mongoose.model("UserDetailsSchema", userDetailsSchema);
