@@ -106,12 +106,6 @@ const userDetailsSchema = new Schema({
   maxlength: 255,
   unique: true
 },
- password : {
-    type: String,
-    required: true,
-    minlength: 5,
-    maxlength: 1024
- },
   selectReasonName : {
     type:String
   },
@@ -135,7 +129,6 @@ userDetailsSchema.method("toJSON", function() {
 function validateUser(user) {
   const schema = {
       email: Joi.string().min(5).max(255).required().email(),
-      password: Joi.string().min(5).max(255).required(),
       zipcode: Joi.string().min(6).max(8).required(),
   };
   return Joi.validate(user, schema);
