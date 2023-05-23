@@ -5,6 +5,8 @@ cors = require('cors');
 bodyParser = require('body-parser');
 const createError = require('http-errors');
 dbConfig = require('./db/database');
+fs = require("fs");
+multer = require("multer");
 
 //const Joi = require('joi');
 
@@ -26,9 +28,19 @@ app.use(bodyParser.urlencoded({
 
 app.use(cors());
 
+// // http://expressjs.com/en/starter/static-files.html
+// app.use(express.static('public'));
+// app.use('/style', express.static('public'));
+
+// // http://expressjs.com/en/starter/basic-routing.html
+// app.get('/', function (req, res) {
+//   res.sendFile(process.cwd() + '/index.html');
+// });
+
 // Api root
 const userRoute = require('./routes/employees.routes');
 app.use('/endpoint', userRoute);
+//app.use('/', userRoute);  // testing for upload functionality
 
 // Create port
 const port = process.env.PORT || 8080;
@@ -39,10 +51,6 @@ const server = app.listen(port, ()=>{
 // Find 404 and hand over to error handler
 app.use((req,res,next)=>{
   next(createError(404));
-});
-// Index Route
-app.get('/', (req,res)=>{
-    res.send("Invalid endpoint");
 });
 
 //error handler

@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const fs = require("fs");
+const multer = require("multer");
 
 const employeesExpressRoute = express.Router();
 const addEmployeeSchema = require('../model/addEmployee.model');
@@ -7,6 +9,7 @@ const addEmployeeSchema = require('../model/addEmployee.model');
 const RegisterEmpSchema = require('../model/registerEmployee');
 const UserDetailsSchema = require('../model/employees.model');
 const validate = require('../model/employees.model');
+const imageSchema = require('../model/upload.model');
 //const { EmployeesSchema, RegisterEmpSchema, UserDetailsSchema, User, validate } = require('../model/employees.model');
 app.use(express.json());
 employeesExpressRoute.route('/employees').get((req,res, next) =>{
@@ -134,5 +137,47 @@ employeesExpressRoute.route('/registerUser').post((req, res, next) => {
             })
     }
 })
+
+// SET STORAGE
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now())
+    }
+  })
+  var upload = multer({ storage: storage })
+
+//employeesExpressRoute.route('/uploadphoto').post( (req, res) => {
+ employeesExpressRoute.route("/uploadphoto").post(upload.single('myImage'),(req,res)=>{
+    var img = fs.readFileSync(req.file.path);
+    var encode_img = img.toString('base64');
+    var final_img = {
+        contentType:req.file.mimetype,
+        image:new Buffer(encode_img,'base64')
+    };
+    imageSchema.create(final_img,function(err,result){
+        if(err){
+            console.log(err, "Upload Issue");
+        }else{
+            console.log(result.img.Buffer);
+            console.log("Saved To database");
+            res.contentType(final_img.contentType);
+            res.send(final_img.image);
+        }
+    })
+})
+
+employeesExpressRoute.route("/showUpload").get((req,res)=>{
+    imageSchema.find().toArray(function (err,result){
+       const imgArray = result.map(element =>element._id);
+       console.log(imgArray);
+       if(err){
+           return console.error(err);
+       }
+       res.send(imgArray)
+   })
+});
 
 module.exports = employeesExpressRoute;
