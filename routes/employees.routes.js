@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const fs = require("fs");
 const multer = require("multer");
+const path = require('path');
 
 const employeesExpressRoute = express.Router();
 const addEmployeeSchema = require('../model/addEmployee.model');
@@ -10,6 +11,7 @@ const RegisterEmpSchema = require('../model/registerEmployee');
 const UserDetailsSchema = require('../model/employees.model');
 const validate = require('../model/employees.model');
 const imageSchema = require('../model/upload.model');
+const multipleFilesSchema = require('../model/multipleUploads.model');
 //const { EmployeesSchema, RegisterEmpSchema, UserDetailsSchema, User, validate } = require('../model/employees.model');
 app.use(express.json());
 employeesExpressRoute.route('/employees').get((req,res, next) =>{
@@ -139,37 +141,116 @@ employeesExpressRoute.route('/registerUser').post((req, res, next) => {
 })
 
 // SET STORAGE
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads')
     },
     filename: function (req, file, cb) {
-      cb(null, file.fieldname + '-' + Date.now())
+     //cb(null, new Date().toISOString().replace(/:/g, '-') + '-'+ file.originalname);
+      cb(null, `${new Date().toISOString().replace(/:/g, '-')}${file.originalname}`);
     }
   })
-  var upload = multer({ storage: storage })
+  const fileFilter = (req, file, cb) => {
+    // reject a file
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } 
+      else {
+        cb(new Error('Only .jpeg or .png files are accepted'), false);   
+    }
+};
+  var upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+ });
 
-//employeesExpressRoute.route('/uploadphoto').post( (req, res) => {
- employeesExpressRoute.route("/uploadphoto").post(upload.single('myImage'),(req,res)=>{
+ const singleFileUpload = async (req,res,next) => {
+    try{
+        const file = req.file;
+        console.log(file);
+        res.status(201).send('File uploaded success');
+    } catch(error) {
+        res.status(400).send(error.message)
+    }
+ }
+
+ const fileSizeFormat = (bytes, decimal) => {
+    if(bytes === 0){
+        return '0 Bytes';
+    }
+    const dm = decimal || 2;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'YB', 'ZB'];
+    const index = Math.floor(Math.log(bytes)/ Math.log(1000));
+    return parseFloat((bytes / Math.pow(1000, index)).toFixed(dm)) + ' ' + sizes[index];
+ }
+
+ employeesExpressRoute.route("/uploadFile").post(upload.single('myImage'), (req,res, next)=>{
     var img = fs.readFileSync(req.file.path);
     var encode_img = img.toString('base64');
-    var final_img = {
-        contentType:req.file.mimetype,
-        image:new Buffer(encode_img,'base64')
+    var file = {
+        filetype:req.file.mimetype,
+        image:new Buffer.from(encode_img,'base64'),
+        filename: req.file.originalname,
+        fileSize: fileSizeFormat(req.file.size, 2), // 0.00 after point 2 values
+        filepath: req.file.path,
+        img: req.file.image
     };
-    imageSchema.create(final_img,function(err,result){
+     //if (!req.myImage) return res.send("you must select a file.");
+    //console.log(final_img);
+    //console.log(req);
+    imageSchema.create(file, function(err,data){
+        // if (req.file == undefined) {
+        //     return res.send({
+        //       message: "You must select a file.",
+        //     });
+        //   }
         if(err){
             console.log(err, "Upload Issue");
         }else{
-            console.log(result.img.Buffer);
+            res.status(201).send('File uploaded success');
             console.log("Saved To database");
-            res.contentType(final_img.contentType);
-            res.send(final_img.image);
+            console.log(file);
+            //res.send(Object.entries(final_img));
         }
     })
 })
 
-employeesExpressRoute.route("/showUpload").get((req,res)=>{
+employeesExpressRoute.route("/uploadMultipleFiles").post(upload.array('myImages'), (req,res, next)=>{
+    var img = fs.readFileSync(req.file.path);
+    var encode_img = img.toString('base64');
+
+    const filesArray = [];
+    req.myImages.array.forEach(element => {
+        const file ={
+            filetype: element.mimetype,
+            //image:new Buffer.from(encode_img,'base64'),
+            filename: element.originalname,
+            fileSize: fileSizeFormat(element.size, 2), // 0.00 after point 2 values
+            filepath: element.path
+        }
+        filesArray.push(file);
+    });
+    const multipleFiles = new multipleFilesSchema({
+        title: req.body.title,
+        files: filesArray
+    });
+ 
+    multipleFilesSchema.create(multipleFiles, function(err,data){
+        if(err){
+            console.log(err, "Upload Issue");
+        }else{
+            res.status(201).send('Multiple Files uploaded successfully');
+            console.log("All files Saved To database");
+            console.log(multipleFiles);
+            //res.send(Object.entries(final_img));
+        }
+    })
+})
+
+employeesExpressRoute.route("/showUploads").get((req,res)=>{
     imageSchema.find().toArray(function (err,result){
        const imgArray = result.map(element =>element._id);
        console.log(imgArray);

@@ -1,6 +1,7 @@
 let express = require('express');
 path = require('path');
 mongoose = require('mongoose');
+mongoose.set('strictQuery', true); // due to showing warning in Terminal
 cors = require('cors');
 bodyParser = require('body-parser');
 const createError = require('http-errors');
@@ -33,10 +34,10 @@ app.use(cors());
 // app.use('/style', express.static('public'));
 
 // // http://expressjs.com/en/starter/basic-routing.html
-// app.get('/', function (req, res) {
-//   res.sendFile(process.cwd() + '/index.html');
-// });
-
+app.get('/', function (req, res) {
+  res.sendFile(process.cwd() + '/index.html');
+});
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 // Api root
 const userRoute = require('./routes/employees.routes');
 app.use('/endpoint', userRoute);

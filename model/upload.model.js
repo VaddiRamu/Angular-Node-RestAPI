@@ -3,10 +3,30 @@ const Schema = mongoose.Schema;
 
 //Schema
 const imgSchema = mongoose.Schema({
-    img:{data:Buffer,contentType: String}
+    filename: {
+        type: String,
+        required: true,
+      },
+      fileSize: {
+        type: String,
+        required: true,
+      },
+      img: {
+        data: Buffer,
+        contentType: String,
+      },
+      filetype:{
+        type: String,
+      },
+      filepath:{
+        type: String,
+      },
+      uploadTime: {
+        type: Date,
+        default: Date.now,
+      }
 },
 {collection: 'uploads'});
-
 
 module.exports = mongoose.model("imageSchema",imgSchema);
 
