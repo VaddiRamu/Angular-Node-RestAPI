@@ -1,6 +1,8 @@
 let express = require('express');
 path = require('path');
 mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const ObjectID = require("mongodb").ObjectID;
 mongoose.set('strictQuery', true); // due to showing warning in Terminal
 cors = require('cors');
 bodyParser = require('body-parser');
@@ -14,7 +16,8 @@ multer = require("multer");
 // Connecting mongoDB
 mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.db, {
-    usenewUrlParser : true
+    usenewUrlParser : true,
+    useUnifiedTopology: true
 }).then (()=>{
     console.log("Database connected..!");
 }, error => { console.log('Database could not connected.!' + error) })
@@ -59,6 +62,9 @@ app.use(function(err,req,res,next){
     if(!err.statusCode) err.statusCode = 500;
     res.status(err.statusCode).send(err.message);
 })
+
+
+//dbConfig.db.aggregate([{"$match":{'property': {$exists:true}}},{"$project":{"_id":1}}])
 
 // Static build locatio
 // app.use(express.static(path.join(__dirname, 'dist')));

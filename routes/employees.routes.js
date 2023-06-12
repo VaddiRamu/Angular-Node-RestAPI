@@ -14,6 +14,162 @@ const imageSchema = require('../model/upload.model');
 const multipleFilesSchema = require('../model/multipleUploads.model');
 //const { EmployeesSchema, RegisterEmpSchema, UserDetailsSchema, User, validate } = require('../model/employees.model');
 app.use(express.json());
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const userSchema = require('../model/User');
+const authorize = require('../middlewares/auth');
+const { check, validationResult } = require('express-validator');
+
+
+/////  Token based authentication   /////////
+// Sign-up
+employeesExpressRoute.post(
+    '/register-user',
+    [
+      check('name')
+        .not()
+        .isEmpty()
+        .isLength({ min: 3 })
+        .withMessage('Name must be atleast 3 characters long'),
+      check('email', 'Email is required').not().isEmpty(),
+      check('password', 'Password should be between 5 to 8 characters long')
+        .not()
+        .isEmpty()
+        .isLength({ min: 5, max: 8 }),      
+    ],
+    //let RegularExpression = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[a-zA-Z!#$%&? "])[a-zA-Z0-9!#$%&?]{8,20}$/,
+    (req, res, next) => {
+      const errors = validationResult(req)
+      console.log(req.body);
+  
+      if (!errors.isEmpty()) {
+        return res.status(422).jsonp(errors.array())
+      } else {
+        bcrypt.hash(req.body.password, 10).then((hash) => {
+          const user = new userSchema({
+            name: req.body.name,
+            email: req.body.email,
+            password: hash,
+          })
+          user
+            .save()
+            .then((response) => {
+              res.status(201).json({
+                message: 'User successfully created!',
+                result: response,
+              })
+            })
+            .catch((error) => {
+              res.status(500).json({
+                error: error,
+              })
+            })
+        })
+      }
+    },
+  )
+  
+  // Sign-in
+  employeesExpressRoute.post('/signin', (req, res, next) => {
+    let getUser
+    userSchema
+      .findOne({
+        email: req.body.email,
+      })
+      .then((user) => {
+        if (!user) {
+          return res.status(401).json({
+            message: 'Authentication failed',
+          })
+        }
+        getUser = user
+        return bcrypt.compare(req.body.password, user.password)
+      })
+      .then((response) => {
+        if (!response) {
+          return res.status(401).json({
+            message: 'Authentication failed',
+          })
+        }
+        let jwtToken = jwt.sign(
+          {
+            email: getUser.email,
+            userId: getUser._id,
+          },
+          'longer-secret-is-better',
+          {
+            expiresIn: '1 Sec',
+          },
+        )
+        res.status(200).json({
+          token: jwtToken,
+          expiresIn: 60  + ' ' +'Secs',
+          _id: getUser._id,
+        })
+      })
+      .catch((err) => {
+        return res.status(401).json({
+          message: 'Authentication failed',
+        })
+      })
+  })
+  
+  // Get Users
+  employeesExpressRoute.route('/').get((req, res, next) => {
+    userSchema.find((error, response)=> {
+      if (error) {
+        return next(error)
+      } else {
+        return res.status(200).json(response)
+      }
+    })
+  })
+  
+  
+  // Get Single User
+  employeesExpressRoute.route('/user-profile/:id').get(authorize, (req, res, next) => {
+    userSchema.findById(req.params.id, (error, data) => {
+      if (error) {
+        return next(error)
+      } else {
+        res.status(200).json({
+          msg: data,
+        })
+      }
+    })
+  })
+  
+  // Update User
+  employeesExpressRoute.route('/update-user/:id').put((req, res, next) => {
+    userSchema.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body,
+      },
+      (error, data) => {
+        if (error) {
+          return next(error)
+        } else {
+          res.json(data)
+          console.log('User successfully updated!')
+        }
+      },
+    )
+  })
+  
+  // Delete User
+  employeesExpressRoute.route('/delete-user/:id').delete((req, res, next) => {
+    userSchema.findByIdAndRemove(req.params.id, (error, data) => {
+      if (error) {
+        return next(error)
+      } else {
+        res.status(200).json({
+          msg: data,
+        })
+      }
+    })
+  })
+
 employeesExpressRoute.route('/employees').get((req,res, next) =>{
     //res.json({ message: "Welcome to Rest API with MongoDB." });
     // console.log(res); 
@@ -87,7 +243,7 @@ employeesExpressRoute.route('/delete-employee/:id').delete((req, res, next) => {
         if (error) {
             return next(error);
         } else {
-            console.log('Employee successfully Deleted!')
+            console.log('Employee successfully Deleted!');
             res.status(200).json({
                 msg: data               
             })
@@ -190,13 +346,13 @@ const storage = multer.diskStorage({
  employeesExpressRoute.route("/uploadFile").post(upload.single('myImage'), (req,res, next)=>{
     var img = fs.readFileSync(req.file.path);
     var encode_img = img.toString('base64');
+    //console.log(encode_img);
     var file = {
         filetype:req.file.mimetype,
         image:new Buffer.from(encode_img,'base64'),
         filename: req.file.originalname,
         fileSize: fileSizeFormat(req.file.size, 2), // 0.00 after point 2 values
-        filepath: req.file.path,
-        img: req.file.image
+        filepath: req.file.path
     };
      //if (!req.myImage) return res.send("you must select a file.");
     //console.log(final_img);
