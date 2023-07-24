@@ -10,21 +10,29 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "config": "^3.3.9",
     "cors": "^2.8.5",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
+    "express-handlebars": "^7.0.7",
     "express-validator": "^7.0.1",
     "fs": "^0.0.1-security",
     "helmet": "^7.0.0",
     "http-errors": "^2.0.0",
     "joi": "^17.6.0",
     "jsonwebtoken": "^9.0.0",
+    "lodash": "^4.17.21",
     "mongoose": "^6.11.1",
     "mongoose-unique-validator": "^4.0.0",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^2.0.22"
+    "mysql2": "^3.5.1",
+    "nodemailer": "^6.9.3",
+    "nodemon": "^2.0.22",
+    "otp-generator": "^2.0.1",
+    "razorpay": "^2.8.4",
+    "sib-api-v3-sdk": "^8.5.0"
   }
 }

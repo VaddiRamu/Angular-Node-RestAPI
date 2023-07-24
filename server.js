@@ -11,16 +11,40 @@ dbConfig = require('./db/database');
 fs = require("fs");
 multer = require("multer");
 
+const nodemailer=require('nodemailer');
+const exphbs=require('express-handlebars');
+
 //const Joi = require('joi');
 
-// Connecting mongoDB
+///////  Connecting mongoDB
 mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.db, {
     usenewUrlParser : true,
     useUnifiedTopology: true
 }).then (()=>{
-    console.log("Database connected..!");
+    console.log("Mongo Database connected..!");
 }, error => { console.log('Database could not connected.!' + error) })
+
+
+////// connecting mySQL DB with SSL config
+// var mysql = require('mysql2');
+// var connection = mysql.createConnection(dbConfig.db, {
+//     usenewUrlParser : true,
+//     useUnifiedTopology: true,
+// //   host: 'localhost',
+// //   user: 'root',
+// //   password: 'admin',
+// //   database:'sample',
+// //   port: 3306,  
+// //   ssl  : {
+// //     ca : fs.readFileSync('<path to CA cert file>'),
+// //     rejectUnauthorized: true
+// //   }
+// });
+// connection.connect(function(err) {
+//   if (err) throw console.log('Database could not connected.!' + err);
+//   console.log("mySQL Database Connected!");
+// });
 
 // Setting up express
 const app= express();
@@ -68,3 +92,6 @@ app.use(function(err,req,res,next){
 
 // Static build locatio
 // app.use(express.static(path.join(__dirname, 'dist')));
+
+
+

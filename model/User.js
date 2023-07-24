@@ -12,6 +12,10 @@ let userSchema = mongoose.Schema({
     },
     password: {
         type: String
+    },
+    mobile: {
+        type: String,
+       
     }
 }, {
     collection: 'signup'
