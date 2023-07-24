@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const fs = require("fs");
 const multer = require("multer");
-const path = require('path');
+//const path = require('path');
 
 const otpGenerator = require('otp-generator');
 const bodyparser=require('body-parser');
