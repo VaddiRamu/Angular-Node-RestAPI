@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const fs = require("fs");
 const multer = require("multer");
-//const path = require('path');
+const { GridFsStorage } = require("multer-gridfs-storage");
+const path = require('path');
 
 const otpGenerator = require('otp-generator');
 const bodyparser=require('body-parser');
@@ -35,6 +36,7 @@ const Razorpay = require('razorpay');
 app.use(bodyparser.urlencoded({extended : false}));
 app.use(bodyparser.json());
 
+/// ========= Google Login ========///
 employeesExpressRoute.post('/google/login', (req,res) =>{
   // const google_token = req.body.credential;
   // const g_csrf_token = req.body.g_csrf_token;
@@ -89,6 +91,20 @@ var instance = new Razorpay({
   }
 });
 });
+
+employeesExpressRoute.get('/payments', (req, res, err, next) =>{
+  if(err) {
+    console.log(err);
+    next (err);
+    }
+  else{
+    instance.payments.all({'expand[]':'emi'});
+    //instance.payments.all({'expand[]':'emi'}); //// To get the all EMI payments
+    res.status(200);
+    console.log(res);
+    res.json ({success: true, status: "All payments were fetched successfully.!"})
+    }  
+})
 
 //------------------
 // Create a campaign\
@@ -561,6 +577,12 @@ employeesExpressRoute.route('/registerUser').post((req, res, next) => {
     }
 })
 
+const uploadController = require("../controllers/upload");
+const { options } = require('joi');
+employeesExpressRoute.post("/upload", uploadController.uploadFiles);
+employeesExpressRoute.get("/files", uploadController.getListFiles);
+employeesExpressRoute.get("/files/:name", uploadController.download);
+
 // SET STORAGE
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -587,6 +609,8 @@ const storage = multer.diskStorage({
     },
     fileFilter: fileFilter
  });
+
+ 
 
  const singleFileUpload = async (req,res,next) => {
     try{
