@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 let emailOtpSchema = mongoose.Schema({
     email: {
         type: String,
-        unique: true
+        //unique: false
     },
     // password: {
     //     type: String
@@ -13,7 +13,7 @@ let emailOtpSchema = mongoose.Schema({
         type: String,
         //required: true
     },
-    //createdAt: { type: Date, default: Date.now, index: { expires: 300 } }
+    expiresIn: { type: Date, default: Date.now, index: { expires: 10 } }
 
     // After 5 minutes it deleted automatically from the database
 }, 

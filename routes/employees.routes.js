@@ -179,7 +179,7 @@ employeesExpressRoute.post('/emailOtp',function(req,res){
         //from: req.body.name + '&lt;' + req.body.email + '&gt;',
         from: 'angularsmtp@gmail.com',
         to: req.body.email,
-        subject: "Angular application email verification. ",
+        subject: "Email verification. ",
         html: "<h3>Here is your OTP for account verification: </h3>"  + "<h1 style='font-weight:bold;'>" + otp +"</h1>" // html body
      };
      
@@ -191,14 +191,15 @@ employeesExpressRoute.post('/emailOtp',function(req,res){
           const emailInfo = new emailOtpSchema({
             email: req.body.email,
             otp: otp,
-            email_id: info.messageId,
-            //expiresIn: 60  + ' ' +'Secs',
+            //email_id: info.messageId,
+            expireAt: 30  + ' ' +'Secs',
           })
           emailInfo
             .save()
             .then((response) => {
               res.status(201).json({
                 message: 'Email OTP successfully sent!',
+                expireAt: 30  + ' ' +'Secs',
                 result: response,
               })
             })
@@ -217,6 +218,7 @@ employeesExpressRoute.post('/emailOtp',function(req,res){
 });
 
 employeesExpressRoute.post('/emailOtpVerify', function (req,res){
+  const otp = req.body.otp;
   // let getOtp
   // emailOtpSchema
   //     .findOne({
@@ -267,8 +269,8 @@ employeesExpressRoute.post('/emailOtpVerify', function (req,res){
     //email: req.body.email,
     otp: req.body.otp,
 });
-// console.log(otpHolder[0].otp);
-// console.log(req.body.otp);
+ console.log(otpHolder[0].otp);
+ console.log(req.body.otp);
 
 if (otpHolder[0].otp !== req.body.otp){
     console.log("hello");
@@ -336,7 +338,7 @@ employeesExpressRoute.post(
             .save()
             .then((response) => {
               res.status(201).json({
-                message: 'User Successully Crated.',
+                message: 'User Successully Created.',
                 result: response,
               })
             })
