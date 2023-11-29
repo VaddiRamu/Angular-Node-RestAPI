@@ -36,6 +36,97 @@ const Razorpay = require('razorpay');
 app.use(bodyparser.urlencoded({extended : false}));
 app.use(bodyparser.json());
 
+const Amplify = require('aws-amplify');
+const { Interactions } = require('aws-amplify');
+const awsconfig = require('./../aws-exports');
+//Amplify.default.configure(awsconfig);
+//const serverless = require('serverless-http');
+
+// employeesExpressRoute.get('/chatbot', (req, res) => {
+//   res.send({ application: 'Book Trip Bot ', version: '1' });
+// });
+
+// employeesExpressRoute.post('/intent', async (req, res) => {
+//   const userInput = req.body.userInput;
+//   const response = await Interactions.send("BookCab", userInput);
+//   res.send(response);
+// });
+
+/// ========= Otherway to connect aws-lex ======== ///
+//import * as AWS from "@aws-sdk/client-lex-runtime-v2";
+var AWS = require('aws-sdk');
+require("aws-sdk/lib/maintenance_mode_message").suppress = true;
+const { LexRuntimeV2, LexRuntimeV2Client, GetSessionCommand, DeleteSessionCommand } = require("@aws-sdk/client-lex-runtime-v2");
+
+const lexruntime = new LexRuntimeV2Client({ 
+  identityPoolId: 'us-east-1:80e97e62-0a9f-4375-93f0-995aade3c94a',
+  region: "us-east-1",      // Set your Bot Region
+  credentials: new AWS.Credentials({
+    accessKeyId: "AKIA3XICRGWAOXBSWVGY",         // Add your access IAM accessKeyId
+    secretAccessKey: "vxIBSIy1Z4ld+IkCek1vha4n2PLGL94pV2vPDEdw"      // Add your access IAM secretAccessKey
+  })     
+});
+
+// const lexsession = {
+//   "botId": "4HIIUCLLZB",      // Enter the botId
+//   "botAliasId": "TSTALIASID",   // Enter the botAliasId          
+//   "localeId": "en_US",
+//   "sessionId": "req._userId"
+// };
+
+const lexsession =  lexruntime.send(new DeleteSessionCommand({
+  botId: "4HIIUCLLZB",
+  botAliasId: "TSTALIASID",
+  localeId: "en_US",
+  botName: "BookCab",
+  userId: "805848561024",
+  sessionId: "1701066463",
+}));
+//console.log(session.sessionId);
+
+// lexruntime.recognizeText(lexsession, function(err, data) {
+//   if (err) console.log(err, err.stack); // an error occurred
+//   else     console.log(data);           // successful response
+// });
+
+const lexparams = {
+  "botId": "4HIIUCLLZB",      // Enter the botId
+  "botAliasId": "TSTALIASID",   // Enter the botAliasId          
+  "localeId": "en_US",
+  "sessionId": "1701066463",
+  //HTTP/1.1,
+  "Content-type": "application/json",
+  "inputText": "hi"
+};
+const command = new GetSessionCommand(lexparams);
+
+// async/await.
+employeesExpressRoute.post('/bot', async (req, res) =>{
+  //console.log(res);
+try {
+  const data = await lexruntime.send(command);
+  console.log("Success. Response is: ", data.message);
+} catch (error) {
+  // error handling.
+  console.log(error);
+  // const { requestId, cfId, extendedRequestId } = error.$$metadata;
+  // console.log({ requestId, cfId, extendedRequestId });
+} finally {
+  // finally.
+}
+});
+
+// lexruntime.recognizeText(command, function(err, data) {
+//   if (err) console.log(err, err.stack); // an error occurred
+//   else     console.log(data);           // successful response
+// });
+
+// employeesExpressRoute.post('/intent', lexruntime.recognizeText(lexparams, (err, data) => {
+  
+//     if (err) console.log(err, err.stack); // an error occurred
+//     else     console.log(data);           // successful response
+//   }));
+  
 /// ========= Google Login ========///
 employeesExpressRoute.post('/google/login', (req,res) =>{
   // const google_token = req.body.credential;
@@ -580,7 +671,7 @@ employeesExpressRoute.route('/registerUser').post((req, res, next) => {
 })
 
 const uploadController = require("../controllers/upload");
-const { options } = require('joi');
+const { options, string } = require('joi');
 employeesExpressRoute.post("/upload", uploadController.uploadFiles);
 employeesExpressRoute.get("/files", uploadController.getListFiles);
 employeesExpressRoute.get("/files/:name", uploadController.download);

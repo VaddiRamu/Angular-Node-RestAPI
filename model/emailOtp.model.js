@@ -13,7 +13,7 @@ let emailOtpSchema = mongoose.Schema({
         type: String,
         //required: true
     },
-    expiresIn: { type: Date, default: Date.now, index: { expires: 10 } }
+    expiresIn: { type: Date, default: Date.now, index: { expires: 30 } }
 
     // After 5 minutes it deleted automatically from the database
 }, 

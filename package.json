@@ -10,6 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-amplify": "^3.440.0",
+    "@aws-sdk/client-lex-runtime-v2": "^3.441.0",
+    "aws-amplify": "^5.3.11",
+    "aws-sdk": "^2.1485.0",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",

@@ -93,5 +93,7 @@ app.use(function(err,req,res,next){
 // Static build locatio
 // app.use(express.static(path.join(__dirname, 'dist')));
 
-
+// Latest aws keys
+// Access key : AKIA3XICRGWAOXBSWVGY
+// Secret Access key : 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
 
